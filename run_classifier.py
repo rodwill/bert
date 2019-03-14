@@ -397,7 +397,8 @@ class GenericProcessor:
             self._read_csv(os.path.join(data_dir, "dev.csv"), quotechar='"'), "dev")
 
     def get_test_examples(self, data_dir):
-        raise NotImplementedError()
+        return self._create_examples(
+            self._read_csv(os.path.join(data_dir, "test.csv"), quotechar='"'), "test")
 
     def get_labels(self, data_dir):
         lines = self._read_csv(os.path.join(data_dir, "train.csv"), quotechar='"')
@@ -885,16 +886,16 @@ def main(_):
         tpu_cluster_resolver = tf.contrib.cluster_resolver.TPUClusterResolver(
             FLAGS.tpu_name, zone=FLAGS.tpu_zone, project=FLAGS.gcp_project)
 
-    is_per_host = tf.contrib.tpu.InputPipelineConfig.PER_HOST_V2
-    run_config = tf.contrib.tpu.RunConfig(
-        cluster=tpu_cluster_resolver,
-        master=FLAGS.master,
-        model_dir=FLAGS.output_dir,
-        save_checkpoints_steps=FLAGS.save_checkpoints_steps,
-        tpu_config=tf.contrib.tpu.TPUConfig(
-            iterations_per_loop=FLAGS.iterations_per_loop,
-            num_shards=FLAGS.num_tpu_cores,
-            per_host_input_for_training=is_per_host))
+  is_per_host = tf.contrib.tpu.InputPipelineConfig.PER_HOST_V2
+  run_config = tf.contrib.tpu.RunConfig(
+    cluster=tpu_cluster_resolver,
+    master=FLAGS.master,
+    model_dir=FLAGS.output_dir,
+    save_checkpoints_steps=FLAGS.save_checkpoints_steps,
+    tpu_config=tf.contrib.tpu.TPUConfig(
+      iterations_per_loop=FLAGS.iterations_per_loop,
+      num_shards=FLAGS.num_tpu_cores,
+      per_host_input_for_training=is_per_host))
 
     train_examples = None
     num_train_steps = None
